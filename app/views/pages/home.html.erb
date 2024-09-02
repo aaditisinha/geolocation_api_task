@@ -1,0 +1,62 @@
+<h1>Geolocation Lookup</h1>
+<form id="geolocation-form">
+  <input type="text" id="ip-or-url" placeholder="Enter IP or URL" required>
+  <button type="submit">Lookup</button>
+</form>
+<div id="result"></div>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('geolocation-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const ipOrUrl = document.getElementById('ip-or-url').value;
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Basic ' + btoa('<%= ENV['API_USERNAME'] %>:<%= ENV['API_PASSWORD'] %>')
+      };
+
+      // Only add CSRF token if it's available
+      const csrfToken = document.querySelector('meta[name="csrf-token"]');
+      if (csrfToken) {
+        headers['X-CSRF-Token'] = csrfToken.content;
+      }
+
+      fetch('/api/v1/geolocations', {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify({ ip_or_url: ipOrUrl })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.errors) {
+          document.getElementById('result').innerHTML = `
+            <h2>Error:</h2>
+            <p>${data.errors.join(', ')}</p>
+          `;
+        } else if (data.data && data.data.attributes) {
+          const result = data.data.attributes;
+          document.getElementById('result').innerHTML = `
+            <h2>Result:</h2>
+            <p>IP: ${result.ip || 'N/A'}</p>
+            <p>URL: ${result.url || 'N/A'}</p>
+            <p>Latitude: ${result.latitude || 'N/A'}</p>
+            <p>Longitude: ${result.longitude || 'N/A'}</p>
+            <p>Country: ${result.country || 'N/A'}</p>
+            <p>City: ${result.city || 'N/A'}</p>
+          `;
+        } else {
+          document.getElementById('result').innerHTML = `
+            <h2>Error:</h2>
+            <p>Unexpected response format</p>
+          `;
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        document.getElementById('result').innerHTML = `
+          <h2>Error:</h2>
+          <p>An error occurred while fetching the data. Please try again.</p>
+        `;
+      });
+    });
+  });
+</script>
