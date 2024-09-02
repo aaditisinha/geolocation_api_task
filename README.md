@@ -36,9 +36,9 @@ This project is a Ruby on Rails application that provides a RESTful API for geol
 4. Set up environment variables:
    Create a `.env` file in the root directory and add the following:
    ```
-   IPSTACK_API_KEY="1ecaf60b931a208b6302aa7c1009fab4"
-   API_USERNAME="positrace"
-   API_PASSWORD="positrace"
+   IPSTACK_API_KEY="replace as provided by developer"
+   API_USERNAME="replace as provided by developer"
+   API_PASSWORD="replace as provided by developer"
    ```
 
 ## Usage
